@@ -1,22 +1,24 @@
-﻿using ASPNETCoreIdentityDemo.Models;
+﻿using ASPNETCoreIdentityDemo.Controllers;
+using ASPNETCoreIdentityDemo.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Policy;
 
 namespace ASPNETCoreIdentityDemo.Controllers
 {
     public class AccountController : Controller
     {
         //userManager will hold the UserManager instance
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<ApplicationUser> userManager;
 
         //signInManager will hold the SignInManager instance
-        private readonly SignInManager<IdentityUser> signInManager;
+        private readonly SignInManager<ApplicationUser> signInManager;
 
         //Both UserManager and SignInManager services are injected into the AccountController
         //using constructor injection
-        public AccountController(UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+        public AccountController(UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -29,15 +31,18 @@ namespace ASPNETCoreIdentityDemo.Controllers
         }
 
         [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
-                // Copy data from RegisterViewModel to IdentityUser
-                var user = new IdentityUser
+                // Copy data from RegisterViewModel to ApplicationUser
+                var user = new ApplicationUser
                 {
                     UserName = model.Email,
-                    Email = model.Email
+                    Email = model.Email,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName
                 };
 
                 // Store user data in AspNetUsers database table
@@ -62,9 +67,16 @@ namespace ASPNETCoreIdentityDemo.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public IActionResult Login(string? ReturnUrl = null)
+        {
+            ViewData["ReturnUrl"] = ReturnUrl;
+            return View();
+        }
+
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(LoginViewModel model, string? ReturnUrl)
+        public async Task<IActionResult> Login(LoginViewModel model, string ReturnUrl)
         {
             if (ModelState.IsValid)
             {
@@ -110,13 +122,6 @@ namespace ASPNETCoreIdentityDemo.Controllers
         {
             await signInManager.SignOutAsync();
             return RedirectToAction("index", "home");
-        }
-
-        [HttpGet]
-        public IActionResult Login(string? ReturnUrl = null)
-        {
-            ViewData["ReturnUrl"] = ReturnUrl;
-            return View();
         }
 
         [AllowAnonymous]
