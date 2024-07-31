@@ -1,10 +1,13 @@
 ﻿using ASPNETCoreIdentityDemo.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace ASPNETCoreIdentityDemo.Controllers
 {
+    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Moderator")]
     public class AdministrationController : Controller
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
