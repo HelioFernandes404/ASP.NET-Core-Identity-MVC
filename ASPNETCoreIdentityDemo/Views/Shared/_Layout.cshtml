@@ -34,6 +34,15 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="NonSecureMethod">Non Secure</a>
                         </li>
+
+                        @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Administration" asp-action="ListRoles">
+                                    Manage Roles
+                                </a>
+                            </li>
+                        }
                     </ul>
                     <ul class="navbar-nav ml-auto">
                         @*If the user is signed-in display Logout link*@
@@ -51,12 +60,12 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="account" asp-action="register">
+                                <a class="nav-link text-dark" asp-controller="account" asp-action="register">
                                     Register
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="account" asp-action="login">
+                                <a class="nav-link text-dark" asp-controller="account" asp-action="login">
                                     Login
                                 </a>
                             </li>

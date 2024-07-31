@@ -24,12 +24,17 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(
         // Other settings can be configured here
     })
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
 // Configure the Application Cookie settings
 builder.Services.ConfigureApplicationCookie(options =>
 {
     // If the LoginPath isn't set, ASP.NET Core defaults the path to /Account/Login.
     options.LoginPath = "/Account/Login"; // Set your login path here
+
+    // If the AccessDenied isn't set, ASP.NET Core defaults the path to /Account/AccessDenied
+    options.AccessDeniedPath = "/Account/AccessDenied"; // Set your access denied path here
 });
+
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

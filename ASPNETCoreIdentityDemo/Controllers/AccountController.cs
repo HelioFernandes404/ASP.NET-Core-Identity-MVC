@@ -25,6 +25,13 @@ namespace ASPNETCoreIdentityDemo.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public IActionResult Register()
         {
             return View();
