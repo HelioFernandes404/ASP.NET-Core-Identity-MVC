@@ -64,7 +64,7 @@ namespace ASPNETCoreIdentityDemo.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model, string? ReturnUrl)
         {
             if (ModelState.IsValid)
             {
@@ -73,7 +73,17 @@ namespace ASPNETCoreIdentityDemo.Controllers
                 if (result.Succeeded)
                 {
                     // Handle successful login
-                    return RedirectToAction(nameof(HomeController.Index), "Home");
+
+                    // Check if the ReturnUrl is not null and is a local URL
+                    if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                    {
+                        return Redirect(ReturnUrl);
+                    }
+                    else
+                    {
+                        // Redirect to default page
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
                 if (result.RequiresTwoFactor)
                 {
@@ -100,6 +110,13 @@ namespace ASPNETCoreIdentityDemo.Controllers
         {
             await signInManager.SignOutAsync();
             return RedirectToAction("index", "home");
+        }
+
+        [HttpGet]
+        public IActionResult Login(string? ReturnUrl = null)
+        {
+            ViewData["ReturnUrl"] = ReturnUrl;
+            return View();
         }
 
 
