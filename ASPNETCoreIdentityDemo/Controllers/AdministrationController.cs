@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ASPNETCoreIdentityDemo.Controllers
 {
-    [Authorize(Roles = "Admin")]
-    [Authorize(Roles = "Moderator")]
+
     public class AdministrationController : Controller
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
@@ -79,76 +78,81 @@ namespace ASPNETCoreIdentityDemo.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditRole(string roleId)
+        public async Task<IActionResult> EditUser(string UserId)
         {
-            //First Get the role information from the database
-            ApplicationRole? role = await _roleManager.FindByIdAsync(roleId);
-            if (role == null)
+            //First Fetch the User Details by UserId
+            var user = await _userManager.FindByIdAsync(UserId);
+
+            //Check if User Exists in the Database
+            if (user == null)
             {
-                // Handle the scenario when the role is not found
-                return View("Error");
+                ViewBag.ErrorMessage = $"User with Id = {UserId} cannot be found";
+                return View("NotFound");
             }
 
-            //Populate the EditRoleViewModel from the data retrived from the database
-            var model = new EditRoleViewModel
+            // GetClaimsAsync retunrs the list of user Claims
+            var userClaims = await _userManager.GetClaimsAsync(user);
+
+            // GetRolesAsync returns the list of user Roles
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            //Store all the information in the EditUserViewModel instance
+            var model = new EditUserViewModel
             {
-                Id = role.Id,
-                RoleName = role.Name,
-                Description = role.Description,
-                Users = new List<string>()
-                // You can add other properties here if needed
+                Id = user.Id,
+                Email = user.Email,
+                UserName = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Claims = userClaims.Select(c => c.Value).ToList(),
+                Roles = userRoles
             };
 
-            // Retrieve all the Users
-            foreach (var user in _userManager.Users.ToList())
-            {
-                // If the user is in this role, add the username to
-                // Users property of EditRoleViewModel. 
-                // This model object is then passed to the view for display
-                if (await _userManager.IsInRoleAsync(user, role.Name))
-                {
-                    model.Users.Add(user.UserName);
-                }
-            }
-
+            //Pass the Model to the View
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditRole(EditRoleViewModel model)
+        public async Task<IActionResult> EditUser(EditUserViewModel model)
         {
-            if (ModelState.IsValid)
+            //First Fetch the User by Id from the database
+            var user = await _userManager.FindByIdAsync(model.Id);
+
+            //Check if the User Exists in the database
+            if (user == null)
             {
-                var role = await _roleManager.FindByIdAsync(model.Id);
-                if (role == null)
+                //If the User does not exists in the database, then return Not Found Error View
+                ViewBag.ErrorMessage = $"User with Id = {model.Id} cannot be found";
+                return View("NotFound");
+            }
+            else
+            {
+                //If the User Exists, then proceed and update the data
+                //Populate the user instance with the data from EditUserViewModel
+                user.Email = model.Email;
+                user.UserName = model.UserName;
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+
+                //UpdateAsync Method will update the user data in the AspNetUsers Identity table
+                var result = await _userManager.UpdateAsync(user);
+
+                if (result.Succeeded)
                 {
-                    // Handle the scenario when the role is not found
-                    ViewBag.ErrorMessage = $"Role with Id = {model.Id} cannot be found";
-                    return View("NotFound");
+                    //Once user data updated redirect to the ListUsers view
+                    return RedirectToAction("ListUsers");
                 }
                 else
                 {
-                    role.Name = model.RoleName;
-                    role.Description = model.Description;
-                    // Update other properties if needed
-
-                    var result = await _roleManager.UpdateAsync(role);
-                    if (result.Succeeded)
-                    {
-                        return RedirectToAction("ListRoles"); // Redirect to the roles list
-                    }
-
+                    //In case any error, stay in the same view and show the model validation error
                     foreach (var error in result.Errors)
                     {
                         ModelState.AddModelError("", error.Description);
                     }
-
-                    return View(model);
                 }
+
+                return View(model);
             }
-
-            return View(model);
-
         }
 
         [HttpPost]
