@@ -4,8 +4,22 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-                    .AddEntityFrameworkStores<ApplicationDbContext>();
+//Configuration Identity Services
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(
+    options =>
+    {
+        // Password settings
+        options.Password.RequireDigit = true;
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequiredUniqueChars = 4;
+
+        // Other settings can be configured here
+        //https://dotnettutorials.net/lesson/custom-password-policy-in-asp-net-core-identity/
+    })
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
 var connectionString = builder.Configuration.GetConnectionString("SQLServerIdentityConnection") 
     ?? throw new InvalidOperationException("Connection string 'SQLServerIdentityConnection' not found.");
