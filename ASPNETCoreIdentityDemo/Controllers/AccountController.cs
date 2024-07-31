@@ -119,6 +119,22 @@ namespace ASPNETCoreIdentityDemo.Controllers
             return View();
         }
 
+        [AllowAnonymous]
+        [HttpPost]
+        [HttpGet]
+        public async Task<IActionResult> IsEmailAvailable(string Email)
+        {
+            //Check If the Email Id is Already in the Database
+            var user = await userManager.FindByEmailAsync(Email);
 
+            if (user == null)
+            {
+                return Json(true);
+            }
+            else
+            {
+                return Json($"Email {Email} is already in use.");
+            }
+        }
     }
 }

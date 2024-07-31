@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 namespace ASPNETCoreIdentityDemo.Models
 {
     public class RegisterViewModel
     {
         [Required]
         [EmailAddress]
+        [Remote(action: "IsEmailAvailable", controller: "Account")]
         public string Email { get; set; }
 
         [Required]
