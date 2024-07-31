@@ -11,7 +11,7 @@ var connectionString = builder.Configuration.GetConnectionString("SQLServerIdent
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 //Configuration Identity Services
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(
     options =>
     {
         // Password settings
