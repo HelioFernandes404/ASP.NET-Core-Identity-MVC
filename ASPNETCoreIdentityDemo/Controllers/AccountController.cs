@@ -76,7 +76,7 @@ namespace ASPNETCoreIdentityDemo.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(LoginViewModel model, string ReturnUrl)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -86,16 +86,10 @@ namespace ASPNETCoreIdentityDemo.Controllers
                 {
                     // Handle successful login
 
-                    // Check if the ReturnUrl is not null and is a local URL
-                    if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
-                    {
-                        return Redirect(ReturnUrl);
-                    }
-                    else
-                    {
-                        // Redirect to default page
-                        return RedirectToAction("Index", "Home");
-                    }
+
+                    // Redirect to default page
+                    return RedirectToAction("Index", "Home");
+
                 }
                 if (result.RequiresTwoFactor)
                 {
@@ -141,5 +135,6 @@ namespace ASPNETCoreIdentityDemo.Controllers
                 return Json($"Email {Email} is already in use.");
             }
         }
+
     }
 }
